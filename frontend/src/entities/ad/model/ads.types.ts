@@ -1,6 +1,7 @@
 export type TAdCategory = 'auto' | 'real_estate' | 'electronics';
 
 export type TAd = {
+  id: number;
   category: TAdCategory;
   title: string;
   price: number;

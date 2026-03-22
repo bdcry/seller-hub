@@ -10,8 +10,8 @@ type TAdsListProps = {
 export const AdsList = ({ items }: TAdsListProps): ReactElement => {
   return (
     <ul className={styles.list}>
-      {items.map((ad, idx) => (
-        <li key={idx}>
+      {items.map((ad) => (
+        <li key={ad.id}>
           <AdCard ad={ad} />
         </li>
       ))}
