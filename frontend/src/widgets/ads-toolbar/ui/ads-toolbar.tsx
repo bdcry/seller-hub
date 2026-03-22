@@ -1,14 +1,15 @@
 import type { ReactElement } from 'react';
 import { Button, ButtonGroup, Form, InputGroup } from 'react-bootstrap';
 import styles from './ads-toolbar.module.css';
+import type { TSortValue } from '../../../entities/ad/model/ads.types';
 
 type TAdsToolbarProps = {
   totalAds?: number;
   searchValue?: string;
-  sortValue?: string;
+  sortValue?: TSortValue;
   layout?: 'grid' | 'list';
   onSearchChange?: (value: string) => void;
-  onSortChange?: (value: string) => void;
+  onSortChange?: (value: TSortValue) => void;
   onLayoutChange?: (value: 'grid' | 'list') => void;
 };
 
@@ -80,7 +81,7 @@ export const AdsToolbar = ({
       </div>
 
       <div className={styles.controls}>
-        <Form className={styles.search} role="search">
+        <Form className={styles.search} role="search" onSubmit={(event) => event.preventDefault()}>
           <InputGroup className={styles.searchGroup}>
             <Form.Control
               type="search"
@@ -120,7 +121,7 @@ export const AdsToolbar = ({
           aria-label="Сортировка объявлений"
           className={styles.sort}
           value={sortValue}
-          onChange={(event) => onSortChange?.(event.target.value)}
+          onChange={(event) => onSortChange?.(event.target.value as TSortValue)}
         >
           <option value="createdAt-desc">По новизне (сначала новые)</option>
           <option value="createdAt-asc">По новизне (сначала старые)</option>

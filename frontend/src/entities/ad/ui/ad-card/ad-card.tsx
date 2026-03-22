@@ -11,9 +11,16 @@ export const AdCard = ({ ad }: { ad: TAd }): ReactElement => {
     <Card className={styles.card}>
       <Card.Img variant="top" src={placeholderImageSrc} alt="Заглушка изображения товара" />
       <Card.Body className={styles.body}>
-        <Card.Text className={styles.category}>{getCategoryLabel(ad.category)}</Card.Text>
-        <Card.Title className={styles.title}>{ad.title}</Card.Title>
-        <Card.Text className={styles.price}>{ad.price} ₽</Card.Text>
+        <div className={styles.content}>
+          <Card.Text className={styles.category}>{getCategoryLabel(ad.category)}</Card.Text>
+          <Card.Title className={styles.title}>{ad.title}</Card.Title>
+        </div>
+        <div className={styles.footer}>
+          <Card.Text className={styles.price}>{ad.price} ₽</Card.Text>
+          {ad?.needsRevision && (
+            <Card.Text className={styles.needsRevision}>Требует доработок</Card.Text>
+          )}
+        </div>
       </Card.Body>
     </Card>
   );

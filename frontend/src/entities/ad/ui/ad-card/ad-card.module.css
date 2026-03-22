@@ -1,6 +1,6 @@
 .card {
   width: 200px;
-  height: 268px;
+  height: 100%;
   border-radius: 16px;
   border: none;
 }
@@ -16,6 +16,19 @@
 .body {
   display: flex;
   flex-direction: column;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
   gap: 8px;
 }
 
@@ -27,4 +40,13 @@
 
 .price {
   color: var(--color-text-secondary);
+}
+
+.needsRevision {
+  background-color: #f9f1e6;
+  color: #faad14;
+  font-size: 14px;
+  padding: 2px 8px;
+  text-align: center;
+  border-radius: 8px;
 }

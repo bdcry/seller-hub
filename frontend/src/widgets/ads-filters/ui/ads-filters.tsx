@@ -2,8 +2,23 @@ import type { ReactElement } from 'react';
 import { Accordion, Button, Card, Form } from 'react-bootstrap';
 import { getCategoryLabel } from '../../../entities/ad/lib/get-category-label';
 import styles from './ads-filters.module.css';
+import type { TAdCategory } from '../../../entities/ad/model/ads.types';
 
-export const AdsFilters = (): ReactElement => {
+type TAdsFiltersProps = {
+  selectedCategories: TAdCategory[];
+  needsRevision: boolean;
+  onCategoryChange: (category: TAdCategory) => void;
+  onNeedsRevisionChange: (needsRevision: boolean) => void;
+  onResetFilters: () => void;
+};
+
+export const AdsFilters = ({
+  selectedCategories,
+  onCategoryChange,
+  needsRevision,
+  onNeedsRevisionChange,
+  onResetFilters,
+}: TAdsFiltersProps): ReactElement => {
   return (
     <Card className={styles.card}>
       <Card.Header className={styles.header}>Фильтры</Card.Header>
@@ -12,20 +27,39 @@ export const AdsFilters = (): ReactElement => {
           <Accordion.Item eventKey="0" style={{ border: 'none' }}>
             <Accordion.Header>Категории</Accordion.Header>
             <Accordion.Body style={{ padding: 0, paddingTop: 10 }}>
-              <Form className={styles.form}>
-                <Form.Check type="checkbox" label={getCategoryLabel('auto')}></Form.Check>
-                <Form.Check type="checkbox" label={getCategoryLabel('electronics')}></Form.Check>
-                <Form.Check type="checkbox" label={getCategoryLabel('real_estate')}></Form.Check>
+              <Form className={styles.form} onSubmit={(e) => e.preventDefault()}>
+                <Form.Check
+                  type="checkbox"
+                  label={getCategoryLabel('auto')}
+                  checked={selectedCategories.includes('auto')}
+                  onChange={() => onCategoryChange('auto')}
+                ></Form.Check>
+                <Form.Check
+                  type="checkbox"
+                  label={getCategoryLabel('electronics')}
+                  checked={selectedCategories.includes('electronics')}
+                  onChange={() => onCategoryChange('electronics')}
+                ></Form.Check>
+                <Form.Check
+                  type="checkbox"
+                  label={getCategoryLabel('real_estate')}
+                  checked={selectedCategories.includes('real_estate')}
+                  onChange={() => onCategoryChange('real_estate')}
+                ></Form.Check>
                 <Form.Check
                   className={styles.switch}
                   type="switch"
                   label="Только требующие доработок"
+                  checked={needsRevision}
+                  onChange={(e) => onNeedsRevisionChange(e.target.checked)}
                 />
               </Form>
             </Accordion.Body>
           </Accordion.Item>
         </Accordion>
-        <Button variant="secondary">Сбросить фильтры</Button>
+        <Button variant="secondary" onClick={onResetFilters}>
+          Сбросить фильтры
+        </Button>
       </Card.Body>
     </Card>
   );

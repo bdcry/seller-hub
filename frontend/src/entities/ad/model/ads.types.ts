@@ -11,3 +11,21 @@ export type TAds = {
   items: TAd[];
   total: number;
 };
+
+export type TSortValue = 'createdAt-desc' | 'createdAt-asc' | 'title-asc' | 'title-desc';
+
+type TSortColumn = 'createdAt' | 'title';
+type TSortDirection = 'asc' | 'desc';
+
+export type TSortParams = {
+  sortColumn: TSortColumn;
+  sortDirection: TSortDirection;
+};
+
+export type TGetAdsParams = {
+  q?: string;
+  sortColumn?: TSortColumn;
+  sortDirection?: TSortDirection;
+  needsRevision?: boolean;
+  categories?: string;
+};
