@@ -78,15 +78,71 @@ export const AdsListPage = (): ReactElement => {
   };
 
   // данные для пагинации
-  const totalPage = Math.ceil((ads?.total ?? 0) / PAGE_SIZE);
+  const adsItems = ads?.items ?? [];
+  const totalAds = ads?.total ?? 0;
+  const totalPage = Math.ceil(totalAds / PAGE_SIZE);
   const isPrevDisabled = currentPage === 1;
   const isNextDisabled = totalPage === 0 || currentPage === totalPage;
-  const hasItems = ads?.items.length > 0;
+  const hasItems = adsItems.length > 0;
+  let adsContent: ReactElement;
+
+  if (isPending) {
+    adsContent = (
+      <div className={styles.stateBlock}>
+        <Spinner animation="border" role="status" variant="primary" />
+        <p className={styles.stateText}>Загружаем объявления...</p>
+      </div>
+    );
+  } else if (isError) {
+    adsContent = (
+      <Alert variant="danger" className={styles.stateAlert}>
+        Не удалось загрузить объявления.
+      </Alert>
+    );
+  } else if (hasItems) {
+    adsContent = (
+      <>
+        {isFetching && (
+          <div className={styles.fetchingIndicator}>
+            <Spinner animation="border" role="status" size="sm" />
+            <span className={styles.fetchingText}>Обновляем список...</span>
+          </div>
+        )}
+        <AdsList items={adsItems} />
+        <Pagination>
+          <Pagination.Prev
+            disabled={isPrevDisabled}
+            onClick={() => setCurrentPage(currentPage - 1)}
+          />
+          {totalPage > 1 &&
+            new Array(totalPage).fill(0).map((_, index) => (
+              <Pagination.Item
+                key={index}
+                active={index + 1 === currentPage}
+                onClick={() => setCurrentPage(index + 1)}
+              >
+                {index + 1}
+              </Pagination.Item>
+            ))}
+          <Pagination.Next
+            disabled={isNextDisabled}
+            onClick={() => setCurrentPage(currentPage + 1)}
+          />
+        </Pagination>
+      </>
+    );
+  } else {
+    adsContent = (
+      <div className={styles.stateBlock}>
+        <p className={styles.stateText}>Ничего не найдено.</p>
+      </div>
+    );
+  }
 
   return (
     <>
       <AdsToolbar
-        totalAds={ads?.total}
+        totalAds={totalAds}
         onSearchChange={onSearchChange}
         searchValue={searchValue}
         onSortChange={onSortChange}
@@ -102,52 +158,7 @@ export const AdsListPage = (): ReactElement => {
             onResetFilters={onResetFilters}
           />
         </aside>
-        <section className={styles.sectionAds}>
-          {isPending ? (
-            <div className={styles.stateBlock}>
-              <Spinner animation="border" role="status" variant="primary" />
-              <p className={styles.stateText}>Загружаем объявления...</p>
-            </div>
-          ) : isError ? (
-            <Alert variant="danger" className={styles.stateAlert}>
-              Не удалось загрузить объявления.
-            </Alert>
-          ) : hasItems ? (
-            <>
-              {isFetching && (
-                <div className={styles.fetchingIndicator}>
-                  <Spinner animation="border" role="status" size="sm" />
-                  <span className={styles.fetchingText}>Обновляем список...</span>
-                </div>
-              )}
-              <AdsList items={ads?.items ?? []} />
-              <Pagination>
-                <Pagination.Prev
-                  disabled={isPrevDisabled}
-                  onClick={() => setCurrentPage(currentPage - 1)}
-                />
-                {totalPage > 1 &&
-                  new Array(totalPage).fill(0).map((_, index) => (
-                    <Pagination.Item
-                      key={index}
-                      active={index + 1 === currentPage}
-                      onClick={() => setCurrentPage(index + 1)}
-                    >
-                      {index + 1}
-                    </Pagination.Item>
-                  ))}
-                <Pagination.Next
-                  disabled={isNextDisabled}
-                  onClick={() => setCurrentPage(currentPage + 1)}
-                />
-              </Pagination>
-            </>
-          ) : (
-            <div className={styles.stateBlock}>
-              <p className={styles.stateText}>Ничего не найдено.</p>
-            </div>
-          )}
-        </section>
+        <section className={styles.sectionAds}>{adsContent}</section>
       </div>
     </>
   );
