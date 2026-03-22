@@ -28,4 +28,6 @@ export type TGetAdsParams = {
   sortDirection?: TSortDirection;
   needsRevision?: boolean;
   categories?: string;
+  limit?: number;
+  skip?: number;
 };
