@@ -105,6 +105,7 @@ fastify.get<ItemsGetRequest>('/items', request => {
       })
       .slice(skip, skip + limit)
       .map(item => ({
+        id: item.id,
         category: item.category,
         title: item.title,
         price: item.price,
@@ -163,7 +164,7 @@ fastify.put<ItemUpdateRequest>('/items/:id', (request, reply) => {
   }
 });
 
-const port = Number(process.env.port) ?? 8080;
+const port = Number(process.env.PORT ?? 8080);
 
 fastify.listen({ port }, function (err, _address) {
   if (err) {
