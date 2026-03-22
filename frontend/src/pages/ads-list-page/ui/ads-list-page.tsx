@@ -1,11 +1,11 @@
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useState, type ReactElement } from 'react';
 import { getAds } from '../../../entities/ad/api/getAds';
 import { AdsList } from '../../../widgets/ads-list/ui/ads-list';
 import { AdsToolbar } from '../../../widgets/ads-toolbar/ui/ads-toolbar';
 import { AdsFilters } from '../../../widgets/ads-filters/ui/ads-filters';
 import styles from './ads-list-page.module.css';
-import { Pagination } from 'react-bootstrap';
+import { Alert, Pagination, Spinner } from 'react-bootstrap';
 import { adsSortMap } from '../../../entities/ad/lib/ads-sort-map';
 import { type TAdCategory, type TSortValue } from '../../../entities/ad/model/ads.types';
 
@@ -24,7 +24,12 @@ export const AdsListPage = (): ReactElement => {
   // пагинация
   const [currentPage, setCurrentPage] = useState<number>(1);
 
-  const { data: ads } = useQuery({
+  const {
+    data: ads,
+    isPending,
+    isFetching,
+    isError,
+  } = useQuery({
     queryKey: ['ads', searchValue, sortValue, needsRevision, selectedCategories, currentPage],
     queryFn: () =>
       getAds({
@@ -35,6 +40,7 @@ export const AdsListPage = (): ReactElement => {
         limit: PAGE_SIZE,
         skip: (currentPage - 1) * PAGE_SIZE,
       }),
+    placeholderData: keepPreviousData,
   });
 
   // обработчики для тулбара
@@ -75,6 +81,7 @@ export const AdsListPage = (): ReactElement => {
   const totalPage = Math.ceil((ads?.total ?? 0) / PAGE_SIZE);
   const isPrevDisabled = currentPage === 1;
   const isNextDisabled = totalPage === 0 || currentPage === totalPage;
+  const hasItems = ads?.items.length > 0;
 
   return (
     <>
@@ -95,30 +102,51 @@ export const AdsListPage = (): ReactElement => {
             onResetFilters={onResetFilters}
           />
         </aside>
-
         <section className={styles.sectionAds}>
-          <AdsList items={ads?.items ?? []} />
-          {/* пока заглушка пагинации */}
-          <Pagination>
-            <Pagination.Prev
-              disabled={isPrevDisabled}
-              onClick={() => setCurrentPage(currentPage - 1)}
-            />
-            {totalPage > 1 &&
-              new Array(totalPage).fill(0).map((_, index) => (
-                <Pagination.Item
-                  key={index}
-                  active={index + 1 === currentPage}
-                  onClick={() => setCurrentPage(index + 1)}
-                >
-                  {index + 1}
-                </Pagination.Item>
-              ))}
-            <Pagination.Next
-              disabled={isNextDisabled}
-              onClick={() => setCurrentPage(currentPage + 1)}
-            />
-          </Pagination>
+          {isPending ? (
+            <div className={styles.stateBlock}>
+              <Spinner animation="border" role="status" variant="primary" />
+              <p className={styles.stateText}>Загружаем объявления...</p>
+            </div>
+          ) : isError ? (
+            <Alert variant="danger" className={styles.stateAlert}>
+              Не удалось загрузить объявления.
+            </Alert>
+          ) : hasItems ? (
+            <>
+              {isFetching && (
+                <div className={styles.fetchingIndicator}>
+                  <Spinner animation="border" role="status" size="sm" />
+                  <span className={styles.fetchingText}>Обновляем список...</span>
+                </div>
+              )}
+              <AdsList items={ads?.items ?? []} />
+              <Pagination>
+                <Pagination.Prev
+                  disabled={isPrevDisabled}
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                />
+                {totalPage > 1 &&
+                  new Array(totalPage).fill(0).map((_, index) => (
+                    <Pagination.Item
+                      key={index}
+                      active={index + 1 === currentPage}
+                      onClick={() => setCurrentPage(index + 1)}
+                    >
+                      {index + 1}
+                    </Pagination.Item>
+                  ))}
+                <Pagination.Next
+                  disabled={isNextDisabled}
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                />
+              </Pagination>
+            </>
+          ) : (
+            <div className={styles.stateBlock}>
+              <p className={styles.stateText}>Ничего не найдено.</p>
+            </div>
+          )}
         </section>
       </div>
     </>

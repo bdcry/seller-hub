@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { AdsListPage } from '../pages/ads-list-page/ui/ads-list-page';
 
 const App = () => {
