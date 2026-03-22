@@ -1,0 +1,16 @@
+.content {
+  display: flex;
+  gap: 24px;
+}
+
+.sectionAds {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .content {
+    flex-direction: column;
+  }
+}

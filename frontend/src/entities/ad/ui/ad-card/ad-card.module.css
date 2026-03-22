@@ -1,0 +1,30 @@
+.card {
+  width: 200px;
+  height: 268px;
+  border-radius: 16px;
+  border: none;
+}
+
+.category {
+  border-radius: 6px;
+  border: 1px solid var(--color-border-soft);
+  padding: 0 12px;
+  font-size: 14px;
+  width: fit-content;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.title,
+.price {
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.price {
+  color: var(--color-text-secondary);
+}

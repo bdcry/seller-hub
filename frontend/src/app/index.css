@@ -1,3 +1,38 @@
+:root {
+  /* Page background */
+  --color-page-background: #f7f5f8;
+
+  /* Primary white surface */
+  --color-surface-primary: #ffffff;
+
+  /* Neutral surface for controls */
+  --color-surface-secondary: #f4f4f8;
+
+  /* Primary text */
+  --color-text-primary: #000000d9;
+
+  /* Secondary text */
+  --color-text-secondary: #00000073;
+
+  /* Muted metadata text */
+  --color-text-muted: #848388;
+
+  /* Control icon color */
+  --color-icon-primary: #23252a;
+
+  /* Accent color */
+  --color-accent-primary: #1677ff;
+
+  /* Accent surface */
+  --color-accent-soft: #e8f3ff;
+
+  /* Subtle border */
+  --color-border-soft: #d9d9d9;
+
+  /* Strong border for active states */
+  --color-border-strong: #cfd5df;
+}
+
 *,
 *::before,
 *::after {
@@ -11,7 +46,7 @@ body {
 }
 
 body {
-  min-width: 320px;
+  background-color: var(--color-page-background);
 }
 
 h1,
@@ -35,7 +70,11 @@ ol {
 }
 
 main {
+  min-width: 320px;
   width: 100%;
   max-width: 1330px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
