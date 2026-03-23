@@ -1,0 +1,48 @@
+.page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 32px 0 48px;
+}
+
+.card {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 32px;
+  border-radius: 16px;
+  background-color: var(--color-surface-primary);
+  border: 1px solid var(--color-border-soft);
+}
+
+.title {
+  font-size: 28px;
+  color: var(--color-text-primary);
+}
+
+.description {
+  font-size: 16px;
+  color: var(--color-text-muted);
+}
+
+.subtitle {
+  font-size: 18px;
+  color: var(--color-text-primary);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-left: 20px;
+  list-style: disc;
+  color: var(--color-text-primary);
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+}

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import type { ReactElement } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getAdDetails } from '../../entities/ad/api/getAdDetails';
+import { getAdDetails } from '../../../entities/ad/api/getAdDetails';
 
 import styles from './ad-details-page.module.css';
 import { Alert, Button, Spinner } from 'react-bootstrap';
@@ -9,7 +9,7 @@ import {
   getMissingFields,
   getParamlabel,
   getParamValueLabel,
-} from '../../entities/ad/lib/get-param-labels';
+} from '../../../entities/ad/lib/get-param-labels';
 
 const placeholderImageSrc = '../../../public/placeholder-image.svg';
 
