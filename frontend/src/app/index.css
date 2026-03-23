@@ -31,6 +31,9 @@
 
   /* Strong border for active states */
   --color-border-strong: #cfd5df;
+
+  /* Divider color */
+  --color-divider: #848388;
 }
 
 *,
