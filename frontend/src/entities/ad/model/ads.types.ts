@@ -37,14 +37,12 @@ type TElectronicsItemParams = {
   color?: string;
 };
 
-type TAdDetailsParams = TAutoItemParams | TRealEstateItemParams | TElectronicsItemParams;
+type TAdDetailsBase = TAd & { description?: string; createdAt: string; updatedAt: string };
 
-export type TAdDetails = TAd & {
-  description?: string;
-  createdAt: string;
-  updatedAt: string;
-  params: TAdDetailsParams;
-};
+export type TAdDetails =
+  | (TAdDetailsBase & { category: 'auto'; params: TAutoItemParams })
+  | (TAdDetailsBase & { category: 'real_estate'; params: TRealEstateItemParams })
+  | (TAdDetailsBase & { category: 'electronics'; params: TElectronicsItemParams });
 
 export type TSortValue = 'createdAt-desc' | 'createdAt-asc' | 'title-asc' | 'title-desc';
 

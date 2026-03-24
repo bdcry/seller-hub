@@ -94,3 +94,20 @@ export const getMissingFields = (adDetails: TAdDetails) => {
 
   return missingFields;
 };
+
+export const adTypeOptions = {
+  auto: [
+    { value: 'automatic', label: 'Автоматическая' },
+    { value: 'manual', label: 'Механическая' },
+  ],
+  real_estate: [
+    { value: 'flat', label: 'Квартира' },
+    { value: 'house', label: 'Дом' },
+    { value: 'room', label: 'Комната' },
+  ],
+  electronics: [
+    { value: 'phone', label: 'Телефон' },
+    { value: 'laptop', label: 'Ноутбук' },
+    { value: 'misc', label: 'Другое' },
+  ],
+};
