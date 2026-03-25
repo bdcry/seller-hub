@@ -14,6 +14,8 @@ import type {
   TAdEditFormValues,
   TAdEditPayload,
 } from '../../../entities/ad/model/ads.types';
+import { generateDescription } from '../../../entities/ai-ollama/api/generate-description';
+import { suggestPrice } from '../../../entities/ai-ollama/api/suggest-price';
 
 const emptyParamsByCategory = {
   auto: {
@@ -247,6 +249,48 @@ export const AdEditPage = (): ReactElement => {
     localStorage.setItem(draftKey, JSON.stringify(formValues));
   }, [draftKey, formValues, isFormInitialized]);
 
+  // Ollama
+
+  const {
+    mutate: mutateOllamaDescription,
+    data: ollamaDescriptionData,
+    isPending: isOllamaDescriptionPending,
+    isSuccess: isOllamaDescriptionSuccess,
+    isError: isOllamaDescriptionError,
+    reset: resetOllamaDescriptionMutation,
+  } = useMutation({
+    mutationFn: (payload: {
+      title: string;
+      category: TAdCategory;
+      price: string | number;
+      params: Record<string, string | undefined>;
+      description?: string;
+    }) =>
+      generateDescription(
+        payload.title,
+        payload.category,
+        payload.price,
+        payload.params,
+        payload.description,
+      ),
+  });
+
+  const {
+    mutate: mutateOllamaPrice,
+    data: ollamaPriceData,
+    isPending: isOllamaPricePending,
+    isSuccess: isOllamaPriceSuccess,
+    isError: isOllamaPriceError,
+    reset: resetOllamaPriceMutation,
+  } = useMutation({
+    mutationFn: (payload: {
+      title: string;
+      category: TAdCategory;
+      price: string | number;
+      params: Record<string, string | undefined>;
+    }) => suggestPrice(payload.title, payload.category, payload.price, payload.params),
+  });
+
   if (isPending) {
     return (
       <div className={styles.stateBlock}>
@@ -272,16 +316,6 @@ export const AdEditPage = (): ReactElement => {
     );
   }
 
-  const submit = (rawData: TAdEditFormValues) => {
-    const payload = buildPayload(rawData);
-    mutation.mutate(payload);
-  };
-
-  const handleCancel = () => {
-    localStorage.removeItem(draftKey);
-    void navigate('..');
-  };
-
   const descriptionValue = ad.description ?? '';
   const currentCategory = (watchedCategory ?? ad.category) as TAdCategory;
   const currentDescription = watchedDescription ?? descriptionValue;
@@ -289,6 +323,12 @@ export const AdEditPage = (): ReactElement => {
   const descriptionHelperText = currentDescription.trim()
     ? 'Улучшить описание'
     : 'Придумать описание';
+
+  const priceHelperText = isOllamaPricePending
+    ? 'Выполняется запрос'
+    : isOllamaPriceSuccess || isOllamaPriceError
+      ? 'Повторить запрос'
+      : 'Узнать рыночную цену';
 
   const typeOptions = adTypeOptions[currentCategory];
   const currentTitle = watchedTitle ?? ad.title;
@@ -310,6 +350,57 @@ export const AdEditPage = (): ReactElement => {
 
   const getOptionalFieldClass = (value?: string) => {
     return isSubmitted && (value ?? '').trim() === '' ? styles.optionalField : '';
+  };
+
+  const submit = (rawData: TAdEditFormValues) => {
+    const payload = buildPayload(rawData);
+    mutation.mutate(payload);
+  };
+
+  const handleCancel = () => {
+    localStorage.removeItem(draftKey);
+    void navigate('..');
+  };
+
+  const handleGenerateDescription = () => {
+    if (isOllamaDescriptionPending) return;
+
+    mutateOllamaDescription({
+      title: currentTitle,
+      category: currentCategory,
+      price: currentPrice,
+      params: watchedParams ?? {},
+      description: currentDescription,
+    });
+  };
+
+  const handleApplyGeneratedDescription = () => {
+    if (!ollamaDescriptionData) return;
+
+    setValue('description', ollamaDescriptionData, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    resetOllamaDescriptionMutation();
+  };
+
+  const handleCloseGeneratedDescription = () => {
+    resetOllamaDescriptionMutation();
+  };
+
+  const handleGeneratePrice = () => {
+    if (isOllamaPricePending) return;
+
+    mutateOllamaPrice({
+      title: currentTitle,
+      category: currentCategory,
+      price: currentPrice,
+      params: watchedParams ?? {},
+    });
+  };
+
+  const handleCloseSuggestedPrice = () => {
+    resetOllamaPriceMutation();
   };
 
   return (
@@ -430,13 +521,53 @@ export const AdEditPage = (): ReactElement => {
                 </InputGroup>
                 <Alert
                   variant="warning"
-                  className={`${styles.helperAction} ${styles.helperActionInline}`}
+                  className={`${styles.helperAction} ${styles.helperActionInline} ${isOllamaPricePending ? styles.helperActionDisabled : ''}`}
+                  onClick={handleGeneratePrice}
                 >
-                  Узнать рыночную цену
+                  <span className={styles.helperActionContent}>
+                    {isOllamaPricePending && (
+                      <Spinner animation="border" size="sm" role="status" variant="warning" />
+                    )}
+                    {priceHelperText}
+                  </span>
                 </Alert>
               </div>
               {errors.price?.message && (
                 <p className={styles.fieldErrorText}>{errors.price.message}</p>
+              )}
+              {isOllamaPriceSuccess && ollamaPriceData && (
+                <div className={styles.aiResult}>
+                  <p className={styles.aiResultTitle}>Ответ AI:</p>
+                  <p className={styles.aiResultText}>{ollamaPriceData}</p>
+                  <div className={styles.aiActions}>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline-secondary"
+                      onClick={handleCloseSuggestedPrice}
+                    >
+                      Закрыть
+                    </Button>
+                  </div>
+                </div>
+              )}
+              {isOllamaPriceError && (
+                <div className={`${styles.aiResult} ${styles.aiResultError}`}>
+                  <p className={styles.aiResultTitle}>Произошла ошибка при запросе к AI</p>
+                  <p className={styles.aiResultText}>
+                    Попробуйте повторить запрос или закройте уведомление.
+                  </p>
+                  <div className={styles.aiActions}>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline-secondary"
+                      onClick={handleCloseSuggestedPrice}
+                    >
+                      Закрыть
+                    </Button>
+                  </div>
+                </div>
               )}
             </div>
           </div>
@@ -735,11 +866,57 @@ export const AdEditPage = (): ReactElement => {
                 />
               </InputGroup>
               <div className={styles.descriptionFooter}>
-                <Alert variant="warning" className={styles.helperAction}>
-                  {descriptionHelperText}
+                <Alert
+                  variant="warning"
+                  className={`${styles.helperAction} ${isOllamaDescriptionPending ? styles.helperActionDisabled : ''}`}
+                  onClick={handleGenerateDescription}
+                >
+                  <span className={styles.helperActionContent}>
+                    {isOllamaDescriptionPending && (
+                      <Spinner animation="border" size="sm" role="status" variant="warning" />
+                    )}
+                    {isOllamaDescriptionPending ? 'Выполняется запрос' : descriptionHelperText}
+                  </span>
                 </Alert>
                 <span className={styles.descriptionCounter}>{descriptionLength} / 1000</span>
               </div>
+              {isOllamaDescriptionSuccess && ollamaDescriptionData && (
+                <div className={styles.aiResult}>
+                  <p className={styles.aiResultTitle}>Ответ AI:</p>
+                  <p className={styles.aiResultText}>{ollamaDescriptionData}</p>
+                  <div className={styles.aiActions}>
+                    <Button type="button" size="sm" onClick={handleApplyGeneratedDescription}>
+                      Применить
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline-secondary"
+                      onClick={handleCloseGeneratedDescription}
+                    >
+                      Закрыть
+                    </Button>
+                  </div>
+                </div>
+              )}
+              {isOllamaDescriptionError && (
+                <div className={`${styles.aiResult} ${styles.aiResultError}`}>
+                  <p className={styles.aiResultTitle}>Произошла ошибка при запросе к AI</p>
+                  <p className={styles.aiResultText}>
+                    Попробуйте повторить запрос или закройте уведомление.
+                  </p>
+                  <div className={styles.aiActions}>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline-secondary"
+                      onClick={handleCloseGeneratedDescription}
+                    >
+                      Закрыть
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
