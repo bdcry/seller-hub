@@ -79,7 +79,7 @@ export const AdEditPage = (): ReactElement => {
       setShowSuccessToast(true);
 
       setTimeout(() => {
-        void navigate('..');
+        // void navigate('..');
       }, 1500);
     },
     onError: () => {
@@ -153,12 +153,12 @@ export const AdEditPage = (): ReactElement => {
 
   return (
     <>
-      <ToastContainer position="top-end" className={styles.toastContainer}>
+      <ToastContainer position="top-end">
         <Toast
           show={showSuccessToast}
           onClose={() => setShowSuccessToast(false)}
           bg="success"
-          delay={1400}
+          delay={100000}
           autohide
         >
           <Toast.Body className={styles.toastBody}>Изменения сохранены</Toast.Body>
