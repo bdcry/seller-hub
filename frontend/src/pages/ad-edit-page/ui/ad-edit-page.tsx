@@ -1,5 +1,5 @@
-import { type ChangeEvent, type ReactElement } from 'react';
-import { Alert, Button, Form, InputGroup, Spinner } from 'react-bootstrap';
+import { useState, type ChangeEvent, type ReactElement } from 'react';
+import { Alert, Button, Form, InputGroup, Spinner, Toast, ToastContainer } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import styles from './ad-edit-page.module.css';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -41,6 +41,8 @@ const emptyParamsByCategory = {
 export const AdEditPage = (): ReactElement => {
   const navigate = useNavigate();
   const param = useParams();
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [showErrorToast, setShowErrorToast] = useState(false);
   const {
     register,
     handleSubmit,
@@ -73,7 +75,16 @@ export const AdEditPage = (): ReactElement => {
   const mutation = useMutation({
     mutationFn: (updateData: TAdEditPayload) => updateAd(String(param.id), updateData),
     onSuccess: () => {
-      void navigate('..');
+      setShowErrorToast(false);
+      setShowSuccessToast(true);
+
+      setTimeout(() => {
+        void navigate('..');
+      }, 1500);
+    },
+    onError: () => {
+      setShowSuccessToast(false);
+      setShowErrorToast(true);
     },
   });
 
@@ -142,6 +153,30 @@ export const AdEditPage = (): ReactElement => {
 
   return (
     <>
+      <ToastContainer position="top-end" className={styles.toastContainer}>
+        <Toast
+          show={showSuccessToast}
+          onClose={() => setShowSuccessToast(false)}
+          bg="success"
+          delay={1400}
+          autohide
+        >
+          <Toast.Body className={styles.toastBody}>Изменения сохранены</Toast.Body>
+        </Toast>
+
+        <Toast
+          show={showErrorToast}
+          onClose={() => setShowErrorToast(false)}
+          bg="danger"
+          delay={4000}
+          autohide
+        >
+          <Toast.Body className={styles.toastBody}>
+            При попытке сохранить изменения произошла ошибка. Попробуйте ещё раз или зайдите позже.
+          </Toast.Body>
+        </Toast>
+      </ToastContainer>
+
       <header className={styles.headerEdit}>
         <h2 className={styles.headerTitle}>Редактирование объявления</h2>
       </header>

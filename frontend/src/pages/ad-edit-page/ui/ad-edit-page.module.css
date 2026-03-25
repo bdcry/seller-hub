@@ -12,6 +12,17 @@
   padding: 24px 0 48px;
 }
 
+.toastContainer {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 1080;
+}
+
+.toastBody {
+  color: #fff;
+}
+
 .form {
   display: flex;
   flex-direction: column;
