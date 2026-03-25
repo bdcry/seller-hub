@@ -79,7 +79,7 @@ export const AdEditPage = (): ReactElement => {
       setShowSuccessToast(true);
 
       setTimeout(() => {
-        // void navigate('..');
+        void navigate('..');
       }, 1500);
     },
     onError: () => {
