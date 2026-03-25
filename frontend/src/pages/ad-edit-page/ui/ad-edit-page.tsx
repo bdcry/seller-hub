@@ -285,6 +285,7 @@ export const AdEditPage = (): ReactElement => {
   const descriptionValue = ad.description ?? '';
   const currentCategory = (watchedCategory ?? ad.category) as TAdCategory;
   const currentDescription = watchedDescription ?? descriptionValue;
+  const descriptionLength = currentDescription.length;
   const descriptionHelperText = currentDescription.trim()
     ? 'Улучшить описание'
     : 'Придумать описание';
@@ -313,7 +314,7 @@ export const AdEditPage = (): ReactElement => {
 
   return (
     <>
-      <ToastContainer position="top-end">
+      <ToastContainer position="top-end" className={styles.toastContainer}>
         <Toast
           show={showSuccessToast}
           onClose={() => setShowSuccessToast(false)}
@@ -727,14 +728,18 @@ export const AdEditPage = (): ReactElement => {
                 <Form.Control
                   as="textarea"
                   rows={4}
+                  maxLength={1000}
                   defaultValue={descriptionValue}
                   aria-label="Введите описание объявления"
                   {...register('description')}
                 />
               </InputGroup>
-              <Alert variant="warning" className={styles.helperAction}>
-                {descriptionHelperText}
-              </Alert>
+              <div className={styles.descriptionFooter}>
+                <Alert variant="warning" className={styles.helperAction}>
+                  {descriptionHelperText}
+                </Alert>
+                <span className={styles.descriptionCounter}>{descriptionLength} / 1000</span>
+              </div>
             </div>
           </div>
 
