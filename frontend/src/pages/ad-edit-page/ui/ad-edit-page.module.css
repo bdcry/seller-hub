@@ -46,6 +46,29 @@
   width: 50%;
 }
 
+.requiredField :global(.form-control),
+.requiredField :global(.form-select) {
+  border-color: #ff4d4f;
+}
+
+.requiredField :global(.form-control:focus),
+.requiredField :global(.form-select:focus) {
+  border-color: #ff4d4f;
+  box-shadow: none;
+}
+
+.fieldErrorText {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: #ff4d4f;
+}
+
+.optionalField :global(.form-control),
+.optionalField :global(.form-select) {
+  border-color: #ffd666;
+}
+
 .label {
   font-size: 14px;
   line-height: 20px;

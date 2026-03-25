@@ -13,7 +13,7 @@ export type TAds = {
   total: number;
 };
 
-type TAutoItemParams = {
+export type TAutoItemParams = {
   brand?: string;
   model?: string;
   yearOfManufacture?: number;
@@ -22,14 +22,14 @@ type TAutoItemParams = {
   enginePower?: number;
 };
 
-type TRealEstateItemParams = {
+export type TRealEstateItemParams = {
   type?: 'flat' | 'house' | 'room';
   address?: string;
   area?: number;
   floor?: number;
 };
 
-type TElectronicsItemParams = {
+export type TElectronicsItemParams = {
   type?: 'phone' | 'laptop' | 'misc';
   brand?: string;
   model?: string;
@@ -63,3 +63,66 @@ export type TGetAdsParams = {
   limit?: number;
   skip?: number;
 };
+
+type TAdEditFormBase = {
+  category: TAdCategory;
+  title: string;
+  price: string;
+  description: string;
+};
+
+export type TAutoAdEditFormValues = TAdEditFormBase & {
+  category: 'auto';
+  params: {
+    brand: string;
+    model: string;
+    yearOfManufacture: string;
+    transmission: '' | 'automatic' | 'manual';
+    mileage: string;
+    enginePower: string;
+  };
+};
+
+export type TRealEstateAdEditFormValues = TAdEditFormBase & {
+  category: 'real_estate';
+  params: {
+    type: '' | 'flat' | 'house' | 'room';
+    address: string;
+    area: string;
+    floor: string;
+  };
+};
+
+export type TElectronicsAdEditFormValues = TAdEditFormBase & {
+  category: 'electronics';
+  params: {
+    type: '' | 'phone' | 'laptop' | 'misc';
+    brand: string;
+    model: string;
+    condition: '' | 'new' | 'used';
+    color: string;
+  };
+};
+
+export type TAdEditFormValues =
+  | TAutoAdEditFormValues
+  | TRealEstateAdEditFormValues
+  | TElectronicsAdEditFormValues;
+
+type TUpdateAdBase = {
+  category: TAdCategory;
+  title: string;
+  price: number;
+  description?: string;
+};
+
+export type TAdEditPayload =
+  | (TUpdateAdBase & { category: 'auto'; params: TAutoItemParams })
+  | (TUpdateAdBase & {
+      category: 'real_estate';
+      params: TRealEstateItemParams;
+    })
+  | (TUpdateAdBase & {
+      category: 'electronics';
+      params: TElectronicsItemParams;
+    });
