@@ -6,15 +6,16 @@ import { Link } from 'react-router-dom';
 
 type TAdsListProps = {
   items: TAd[];
+  layout: 'grid' | 'list';
 };
 
-export const AdsList = ({ items }: TAdsListProps): ReactElement => {
+export const AdsList = ({ items, layout }: TAdsListProps): ReactElement => {
   return (
-    <ul className={styles.list}>
+    <ul className={`${styles.list} ${styles[`list${layout}`]}`}>
       {items.map((ad) => (
         <li key={ad.id}>
           <Link to={`${ad.id}`} key={ad.id} className={styles.link}>
-            <AdCard ad={ad} />
+            <AdCard ad={ad} layout={layout} />
           </Link>
         </li>
       ))}

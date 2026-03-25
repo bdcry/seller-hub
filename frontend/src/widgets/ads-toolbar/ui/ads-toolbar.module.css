@@ -29,8 +29,12 @@
   flex-wrap: nowrap;
   gap: 12px;
   padding: 12px;
+  border: 1px solid var(--color-border-soft);
   border-radius: 16px;
   background-color: var(--color-surface-primary);
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .search {
@@ -50,6 +54,13 @@
   padding: 0 14px;
   background-color: var(--color-surface-secondary);
   color: var(--color-text-primary);
+}
+
+.searchGroup :global(.form-control:focus) {
+  border-color: var(--color-border-strong);
+  background-color: var(--color-surface-secondary);
+  color: var(--color-text-primary);
+  box-shadow: none;
 }
 
 .searchGroup :global(.form-control)::placeholder {
@@ -82,11 +93,25 @@
   color: var(--color-icon-primary);
 }
 
+.layoutButton:global(.btn) {
+  border-color: var(--color-border-soft);
+  background-color: var(--color-surface-secondary);
+  color: var(--color-icon-primary);
+}
+
 .layoutButton:hover {
   border-color: var(--color-border-strong);
+  background-color: var(--color-surface-secondary);
+  color: var(--color-icon-primary);
 }
 
 .layoutButton[data-active='true'] {
+  background-color: var(--color-accent-soft);
+  color: var(--color-accent-primary);
+  border-color: var(--color-accent-soft);
+}
+
+.layoutButton[data-active='true']:global(.btn) {
   background-color: var(--color-accent-soft);
   color: var(--color-accent-primary);
   border-color: var(--color-accent-soft);
@@ -100,6 +125,11 @@
   padding: 0 40px 0 14px;
   background-color: var(--color-surface-secondary);
   color: var(--color-accent-primary);
+}
+
+.sort:focus {
+  border-color: var(--color-border-strong);
+  box-shadow: none;
 }
 
 .icon {

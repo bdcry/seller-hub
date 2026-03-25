@@ -68,7 +68,7 @@ export const AdsToolbar = ({
   totalAds,
   searchValue = '',
   sortValue = 'createdAt-desc',
-  layout = 'grid',
+  layout,
   onSearchChange,
   onSortChange,
   onLayoutChange,

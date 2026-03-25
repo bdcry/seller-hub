@@ -1,7 +1,14 @@
 .list {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
   gap: 12px;
+}
+
+.listgrid {
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.listlist {
+  grid-template-columns: 1fr;
 }
 
 .link {

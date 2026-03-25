@@ -6,10 +6,15 @@ import styles from './ad-card.module.css';
 
 const placeholderImageSrc = '/placeholder-image.svg';
 
-export const AdCard = ({ ad }: { ad: TAd }): ReactElement => {
+export const AdCard = ({ ad, layout }: { ad: TAd; layout: 'grid' | 'list' }): ReactElement => {
   return (
-    <Card className={styles.card}>
-      <Card.Img variant="top" src={placeholderImageSrc} alt="Заглушка изображения товара" />
+    <Card className={layout === 'grid' ? styles.card : styles.listCard}>
+      <Card.Img
+        variant="top"
+        className={layout === 'grid' ? '' : styles.listImage}
+        src={placeholderImageSrc}
+        alt="Заглушка изображения товара"
+      />
       <Card.Body className={styles.body}>
         <div className={styles.content}>
           <Card.Text className={styles.category}>{getCategoryLabel(ad.category)}</Card.Text>
@@ -18,7 +23,15 @@ export const AdCard = ({ ad }: { ad: TAd }): ReactElement => {
         <div className={styles.footer}>
           <Card.Text className={styles.price}>{ad.price} ₽</Card.Text>
           {ad?.needsRevision && (
-            <Card.Text className={styles.needsRevision}>Требует доработок</Card.Text>
+            <Card.Text
+              className={
+                layout === 'grid'
+                  ? styles.needsRevision
+                  : `${styles.needsRevision} ${styles.needsRevisionList}`
+              }
+            >
+              Требует доработок
+            </Card.Text>
           )}
         </div>
       </Card.Body>

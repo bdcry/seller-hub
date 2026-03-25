@@ -2,12 +2,31 @@
   width: 200px;
   height: 100%;
   border-radius: 16px;
-  border: none;
+  border: 1px solid var(--color-border-soft);
+  background-color: var(--color-surface-primary);
+  color: var(--color-text-primary);
+  overflow: hidden;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.listCard {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.card :global(.card-img-top) {
+  background-color: var(--color-surface-secondary);
 }
 
 .category {
   border-radius: 6px;
   border: 1px solid var(--color-border-soft);
+  background-color: var(--color-surface-secondary);
+  color: var(--color-text-secondary);
   padding: 0 12px;
   font-size: 14px;
   width: fit-content;
@@ -38,6 +57,10 @@
   line-height: 24px;
 }
 
+.title {
+  color: var(--color-text-primary);
+}
+
 .price {
   color: var(--color-text-secondary);
 }
@@ -49,4 +72,12 @@
   padding: 2px 8px;
   text-align: center;
   border-radius: 8px;
+}
+
+.needsRevisionList {
+  width: 25%;
+}
+
+.listImage {
+  width: 25%;
 }

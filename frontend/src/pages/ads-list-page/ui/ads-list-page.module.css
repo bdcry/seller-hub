@@ -1,6 +1,7 @@
 .content {
   display: flex;
   gap: 24px;
+  padding-bottom: 24px;
 }
 
 .sectionAds {

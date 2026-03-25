@@ -77,6 +77,13 @@ export const AdsListPage = (): ReactElement => {
     setCurrentPage(1);
   };
 
+  // переключение расположения карточек (сетка или список)
+  const [layout, setLayout] = useState<'grid' | 'list'>('grid');
+
+  const handleLayoutChange = (newLayout: 'grid' | 'list') => {
+    setLayout(newLayout);
+  };
+
   // данные для пагинации
   const adsItems = ads?.items ?? [];
   const totalAds = ads?.total ?? 0;
@@ -108,7 +115,7 @@ export const AdsListPage = (): ReactElement => {
             <span className={styles.fetchingText}>Обновляем список...</span>
           </div>
         )}
-        <AdsList items={adsItems} />
+        <AdsList items={adsItems} layout={layout} />
         <Pagination>
           <Pagination.Prev
             disabled={isPrevDisabled}
@@ -147,6 +154,8 @@ export const AdsListPage = (): ReactElement => {
         searchValue={searchValue}
         onSortChange={onSortChange}
         sortValue={sortValue}
+        layout={layout}
+        onLayoutChange={handleLayoutChange}
       />
       <div className={styles.content}>
         <aside>
