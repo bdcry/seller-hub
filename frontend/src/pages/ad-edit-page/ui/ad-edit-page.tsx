@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent, type ReactElement } from 'react';
+import { useEffect, useState, type ChangeEvent, type ReactElement } from 'react';
 import { Alert, Button, Form, InputGroup, Spinner, Toast, ToastContainer } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import styles from './ad-edit-page.module.css';
@@ -10,6 +10,7 @@ import { updateAd } from '../../../entities/ad/api/update-ad';
 import { buildPayload } from '../../../entities/ad/lib/build-payload';
 import type {
   TAdCategory,
+  TAdDetails,
   TAdEditFormValues,
   TAdEditPayload,
 } from '../../../entities/ad/model/ads.types';
@@ -38,9 +39,129 @@ const emptyParamsByCategory = {
   },
 };
 
+const getInitialFormValues = (ad: TAdDetails): TAdEditFormValues => {
+  const baseValues = {
+    title: ad.title,
+    price: ad.price === null ? '' : String(ad.price),
+    description: ad.description ?? '',
+  };
+
+  if (ad.category === 'auto') {
+    return {
+      ...baseValues,
+      category: 'auto',
+      params: {
+        ...emptyParamsByCategory.auto,
+        brand: ad.params.brand ?? '',
+        model: ad.params.model ?? '',
+        yearOfManufacture: ad.params.yearOfManufacture?.toString() ?? '',
+        transmission: ad.params.transmission ?? '',
+        mileage: ad.params.mileage?.toString() ?? '',
+        enginePower: ad.params.enginePower?.toString() ?? '',
+      },
+    };
+  }
+
+  if (ad.category === 'real_estate') {
+    return {
+      ...baseValues,
+      category: 'real_estate',
+      params: {
+        ...emptyParamsByCategory.real_estate,
+        type: ad.params.type ?? '',
+        address: ad.params.address ?? '',
+        area: ad.params.area?.toString() ?? '',
+        floor: ad.params.floor?.toString() ?? '',
+      },
+    };
+  }
+
+  return {
+    ...baseValues,
+    category: 'electronics',
+    params: {
+      ...emptyParamsByCategory.electronics,
+      type: ad.params.type ?? '',
+      brand: ad.params.brand ?? '',
+      model: ad.params.model ?? '',
+      condition: ad.params.condition ?? '',
+      color: ad.params.color ?? '',
+    },
+  };
+};
+
+const mergeDraftWithInitialValues = (
+  initialValues: TAdEditFormValues,
+  parsedDraft: Partial<TAdEditFormValues>,
+  draftCategory: TAdCategory,
+): TAdEditFormValues => {
+  const draftParams = (parsedDraft.params ?? {}) as Record<string, string | undefined>;
+  const mergedBaseValues = {
+    title: parsedDraft.title ?? initialValues.title,
+    price: parsedDraft.price ?? initialValues.price,
+    description: parsedDraft.description ?? initialValues.description,
+  };
+
+  if (draftCategory === 'auto') {
+    return {
+      ...mergedBaseValues,
+      category: 'auto',
+      params: {
+        ...emptyParamsByCategory.auto,
+        brand: draftParams.brand ?? '',
+        model: draftParams.model ?? '',
+        yearOfManufacture: draftParams.yearOfManufacture ?? '',
+        transmission:
+          draftParams.transmission === 'automatic' || draftParams.transmission === 'manual'
+            ? draftParams.transmission
+            : '',
+        mileage: draftParams.mileage ?? '',
+        enginePower: draftParams.enginePower ?? '',
+      },
+    };
+  }
+
+  if (draftCategory === 'real_estate') {
+    return {
+      ...mergedBaseValues,
+      category: 'real_estate',
+      params: {
+        ...emptyParamsByCategory.real_estate,
+        type:
+          draftParams.type === 'flat' || draftParams.type === 'house' || draftParams.type === 'room'
+            ? draftParams.type
+            : '',
+        address: draftParams.address ?? '',
+        area: draftParams.area ?? '',
+        floor: draftParams.floor ?? '',
+      },
+    };
+  }
+
+  return {
+    ...mergedBaseValues,
+    category: 'electronics',
+    params: {
+      ...emptyParamsByCategory.electronics,
+      type:
+        draftParams.type === 'phone' || draftParams.type === 'laptop' || draftParams.type === 'misc'
+          ? draftParams.type
+          : '',
+      brand: draftParams.brand ?? '',
+      model: draftParams.model ?? '',
+      condition:
+        draftParams.condition === 'new' || draftParams.condition === 'used'
+          ? draftParams.condition
+          : '',
+      color: draftParams.color ?? '',
+    },
+  };
+};
+
 export const AdEditPage = (): ReactElement => {
   const navigate = useNavigate();
-  const param = useParams();
+  const routeParams = useParams();
+  const adId = String(routeParams.id);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [showErrorToast, setShowErrorToast] = useState(false);
   const {
@@ -48,6 +169,7 @@ export const AdEditPage = (): ReactElement => {
     handleSubmit,
     control,
     setValue,
+    reset,
     formState: { errors, isSubmitted },
   } = useForm<TAdEditFormValues>({
     mode: 'onChange',
@@ -55,26 +177,31 @@ export const AdEditPage = (): ReactElement => {
     shouldUnregister: true,
   });
 
-  const watchedTitle = useWatch({ control, name: 'title' });
-  const watchedPrice = useWatch({ control, name: 'price' });
-  const watchedCategory = useWatch({ control, name: 'category' });
-  const watchedDescription = useWatch({ control, name: 'description' });
-  const watchedParams = useWatch({ control, name: 'params' }) as
-    | Record<string, string | undefined>
-    | undefined;
+  const [isFormInitialized, setIsFormInitialized] = useState(false);
+  const draftKey = `ad-edit-draft-${adId}`;
+  const formValues = useWatch({ control });
+
+  const watchedValues = useWatch({ control });
+  const watchedTitle = watchedValues?.title;
+  const watchedPrice = watchedValues?.price;
+  const watchedCategory = watchedValues?.category;
+  const watchedDescription = watchedValues?.description;
+  const watchedParams = watchedValues?.params as Record<string, string | undefined> | undefined;
 
   const {
     data: ad,
     isPending,
     isError,
   } = useQuery({
-    queryKey: ['ad', param.id],
-    queryFn: () => getAdDetails(String(param.id)),
+    queryKey: ['ad', adId],
+    queryFn: () => getAdDetails(adId),
   });
 
   const mutation = useMutation({
-    mutationFn: (updateData: TAdEditPayload) => updateAd(String(param.id), updateData),
+    mutationFn: (updateData: TAdEditPayload) => updateAd(adId, updateData),
     onSuccess: () => {
+      localStorage.removeItem(draftKey);
+
       setShowErrorToast(false);
       setShowSuccessToast(true);
 
@@ -87,6 +214,38 @@ export const AdEditPage = (): ReactElement => {
       setShowErrorToast(true);
     },
   });
+
+  useEffect(() => {
+    if (!ad) return;
+
+    const initialValues = getInitialFormValues(ad);
+
+    const rawDraft = localStorage.getItem(draftKey);
+
+    if (!rawDraft) {
+      reset(initialValues);
+      setIsFormInitialized(true);
+      return;
+    }
+
+    try {
+      const parsedDraft = JSON.parse(rawDraft) as Partial<TAdEditFormValues>;
+      const draftCategory = (parsedDraft.category ?? initialValues.category) as TAdCategory;
+
+      reset(mergeDraftWithInitialValues(initialValues, parsedDraft, draftCategory));
+    } catch {
+      localStorage.removeItem(draftKey);
+      reset(initialValues);
+    } finally {
+      setIsFormInitialized(true);
+    }
+  }, [ad, draftKey, reset]);
+
+  useEffect(() => {
+    if (!isFormInitialized || !formValues) return;
+
+    localStorage.setItem(draftKey, JSON.stringify(formValues));
+  }, [draftKey, formValues, isFormInitialized]);
 
   if (isPending) {
     return (
@@ -119,6 +278,7 @@ export const AdEditPage = (): ReactElement => {
   };
 
   const handleCancel = () => {
+    localStorage.removeItem(draftKey);
     void navigate('..');
   };
 
