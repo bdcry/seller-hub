@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local notes
+frontend/LOCAL_FSD_README.md
+frontend/LOCAL_ADS_CHECKLIST.md
+frontend/LOCAL_FINAL_CHECKLIST.md
