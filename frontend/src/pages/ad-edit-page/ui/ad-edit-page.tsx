@@ -1,4 +1,4 @@
-import { type ReactElement } from 'react';
+import { type ChangeEvent, type ReactElement } from 'react';
 import { Alert, Button, Form, InputGroup, Spinner } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import styles from './ad-edit-page.module.css';
@@ -14,6 +14,30 @@ import type {
   TAdEditPayload,
 } from '../../../entities/ad/model/ads.types';
 
+const emptyParamsByCategory = {
+  auto: {
+    brand: '',
+    model: '',
+    yearOfManufacture: '',
+    transmission: '',
+    mileage: '',
+    enginePower: '',
+  },
+  real_estate: {
+    type: '',
+    address: '',
+    area: '',
+    floor: '',
+  },
+  electronics: {
+    type: '',
+    brand: '',
+    model: '',
+    condition: '',
+    color: '',
+  },
+};
+
 export const AdEditPage = (): ReactElement => {
   const navigate = useNavigate();
   const param = useParams();
@@ -21,9 +45,11 @@ export const AdEditPage = (): ReactElement => {
     register,
     handleSubmit,
     control,
+    setValue,
     formState: { errors, isSubmitted },
   } = useForm<TAdEditFormValues>({
     mode: 'onChange',
+    // убираем значение из состояние формы, если категория изменилась
     shouldUnregister: true,
   });
 
@@ -128,7 +154,21 @@ export const AdEditPage = (): ReactElement => {
               <Form.Select
                 defaultValue={ad.category}
                 aria-label="Категория объявления"
-                {...register('category')}
+                {...register('category', {
+                  onChange: (e: ChangeEvent<HTMLSelectElement>) => {
+                    const newCategory = e.target.value as TAdCategory;
+                    setValue(
+                      'params',
+                      emptyParamsByCategory[newCategory] as TAdEditFormValues['params'],
+                      {
+                        // при смене категории, отмечает, что params изменились, относительно начального значения
+                        // и запускает валидацию
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      },
+                    );
+                  },
+                })}
               >
                 <option value="auto">Авто</option>
                 <option value="electronics">Электроника</option>
