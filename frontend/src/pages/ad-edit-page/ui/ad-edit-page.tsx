@@ -158,7 +158,7 @@ export const AdEditPage = (): ReactElement => {
           show={showSuccessToast}
           onClose={() => setShowSuccessToast(false)}
           bg="success"
-          delay={100000}
+          delay={1500}
           autohide
         >
           <Toast.Body className={styles.toastBody}>Изменения сохранены</Toast.Body>
